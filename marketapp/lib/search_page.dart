@@ -1,9 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
-
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:http/http.dart' as http;
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marketapp/api_service.dart';
 import 'dashboard_page.dart';
 
