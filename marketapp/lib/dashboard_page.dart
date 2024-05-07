@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:nwmarketapp/api_service.dart';
+import 'package:marketapp/api_service.dart';
 import 'graph_page.dart';
 
 class DashboardPage extends StatefulWidget {
