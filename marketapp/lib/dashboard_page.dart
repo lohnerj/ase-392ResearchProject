@@ -66,7 +66,13 @@ class _DashboardPageState extends State<DashboardPage> {
                     IconButton(
                       icon: const Icon(Icons.remove),
                       onPressed: () {
-                        box.delete(key); // This already exists in your code
+                        box.delete(key);
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.question_mark),
+                      onPressed: () async {
+                        print(await fetchLatestInfo(itemId));
                       },
                     ),
                   ],

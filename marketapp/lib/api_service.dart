@@ -39,6 +39,7 @@ Future<double> fetchPriceData(int itemId) async {
         .get(Uri.parse('https://nwmarketprices.com/0/15?cn_id=$itemId'));
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
+
       return data['recent_lowest_price']?.toDouble() ??
           0; // Ensure it's a double
     } else {
@@ -52,6 +53,37 @@ Future<double> fetchPriceData(int itemId) async {
   }
 }
 
+//(15th, so index:14) The last entry in price_graph_data: qty(nullcheck), date_only, lowest_price, highest_buy_order, avg_price,
+Future<List<String>> fetchLatestInfo(int itemId) async {
+  try {
+    final response = await http
+        .get(Uri.parse('https://nwmarketprices.com/0/15?cn_id=$itemId'));
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(response.body);
+
+      // Assume the recent values are the latest ones in the `price_graph_data` list
+      var latestGraphData = data['price_graph_data'].last;
+
+      List<String> info = [
+        latestGraphData['qty'].toString(),
+        latestGraphData['date_only'].toString(),
+        latestGraphData['lowest_price'].toString(),
+        latestGraphData['highest_buy_order'].toString(),
+        latestGraphData['avg_price'].toString(),
+      ];
+
+      return info;
+    } else {
+      throw Exception(
+          'Failed to fetch graph data: Server responded with ${response.statusCode}');
+    }
+  } catch (e) {
+    // ignore: avoid_print
+    print('Failed to fetch graph data: $e'); // Log the error
+    throw Exception('Error fetching graph data: $e');
+  }
+}
+
 Future<List<double>> fetchGraphData(int itemId) async {
   try {
     final response = await http
@@ -60,7 +92,7 @@ Future<List<double>> fetchGraphData(int itemId) async {
       Map<String, dynamic> data = json.decode(response.body);
 
       // Assume the recent values are the latest ones in the `price_graph_data` list
-      var latestGraphData = data['price_graph_data'].first;
+      var latestGraphData = data['price_graph_data'].last;
 
       List<double> prices = [
         data['recent_lowest_price']?.toDouble() ??
