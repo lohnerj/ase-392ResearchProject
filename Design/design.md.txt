@@ -12,3 +12,6 @@ A table for each individual item, ie:
 Columns: Item_Name, Item_Id, qty, date_only, lowest_price, highest_buy_order, avg_price
 
 Each table will contain only one entry per date.
+
+Front End Flowchart Link
+https://www.canva.com/design/DAGEtHQX5ZA/dFuognQTJwVrg4dsyrzDdQ/edit?utm_content=DAGEtHQX5ZA&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
