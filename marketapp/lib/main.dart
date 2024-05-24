@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:marketapp/sqlHelper.dart';
 import 'search_page.dart';
 import 'hive_service.dart';
 
@@ -7,6 +8,7 @@ Future<void> main() async {
   HiveService hiveService = HiveService();
   await hiveService.initFlutter();
   await hiveService.openBox('itemsBox');
+
   runApp(MyApp());
 }
 

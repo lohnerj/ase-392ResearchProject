@@ -1,7 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marketapp/api_service.dart';
+import 'package:marketapp/sqlHelper.dart';
 import 'graph_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -81,6 +81,13 @@ class _DashboardPageState extends State<DashboardPage> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          print("Test Function");
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.blue,
       ),
     );
   }
