@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:marketapp/api_service.dart';
+import 'package:marketapp/machinelearning.dart';
 import 'package:marketapp/sqlHelper.dart';
 import 'graph_page.dart';
 
@@ -73,6 +74,22 @@ class _DashboardPageState extends State<DashboardPage> {
                       icon: const Icon(Icons.question_mark),
                       onPressed: () async {
                         print(await fetchLatestInfo(itemId));
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.lightbulb),
+                      onPressed: () async {
+                        try {
+                          // Fetch data
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MachineLearningPage(),
+                              ));
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('Failed to load data: $e')));
+                        }
                       },
                     ),
                   ],
