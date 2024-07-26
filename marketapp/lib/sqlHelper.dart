@@ -1,54 +1,101 @@
-import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'dart:io' show Platform;
 
-class SQLHelper {
-  static Database? _db;
+class sqlHelper {
+  // Initialize the database factory for FFI
+  static void initializeFactory() {
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+  }
 
   // Initialize the database
-  static Future<void> initDb() async {
-    // Ensure database is initialized only once
-    if (_db != null) {
-      return;
-    }
-
-    // Initializing the database engine
-    sqfliteFfiInit();
-
-    // Setting up the database path
-    var databaseFactory = databaseFactoryFfi;
-    String dbPath = await databaseFactory.getDatabasesPath() + 'my_database.db';
-
-    // Open the database
-    _db = await databaseFactory.openDatabase(dbPath,
-        options: OpenDatabaseOptions(
-          version: 1,
-          onCreate: (Database db, int version) async {
-            // Creating tables
-            await db.execute(
-                'CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT, value TEXT)');
-          },
-          onUpgrade: (Database db, int oldVersion, int newVersion) async {
-            // Handle database upgrades if needed
-          },
-        ));
+  static Future<Database> initializeDB() async {
+    initializeFactory();
+    String path = await getDatabasesPath();
+    return openDatabase(
+      join(path, 'data.db'),
+      onCreate: (database, version) async {
+        // The onCreate callback is only executed if the database doesn't exist
+      },
+      version: 1,
+    );
   }
 
-  // Getter for database instance
-  static Database? get db {
-    return _db;
+  // Check if the table exists
+  static Future<bool> checkTableExists(Database db, String tableName) async {
+    var result = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+      [tableName],
+    );
+    return result.isNotEmpty;
   }
 
-  static Future<void> createTable(
-      String tableName, List<String> columns) async {
-    final db = _db;
-    if (db == null) {
-      throw Exception("Database not initialized");
+  // Create a new table
+  static Future<void> createTable(Database db, String tableName) async {
+    await db.execute('''
+      CREATE TABLE "$tableName" (
+        date TEXT PRIMARY KEY,
+        price TEXT
+      )
+    ''');
+  }
+
+  // Check if a date already exists in the table
+  static Future<bool> dateExists(
+      Database db, String tableName, String date) async {
+    var result = await db.rawQuery(
+      'SELECT date FROM "$tableName" WHERE date = ?',
+      [date],
+    );
+    return result.isNotEmpty;
+  }
+
+  // Insert data into the table
+  static Future<void> insertData(
+      Database db, String tableName, Map<String, String> data) async {
+    Batch batch = db.batch();
+
+    for (var entry in data.entries) {
+      bool exists = await dateExists(db, tableName, entry.key);
+      if (!exists) {
+        batch.rawInsert(
+          'INSERT INTO "$tableName" (date, price) VALUES (?, ?)',
+          [entry.key, entry.value],
+        );
+      }
     }
 
-    String columnDefinitions = columns.join(', ');
-    String sql = 'CREATE TABLE IF NOT EXISTS $tableName ($columnDefinitions)';
-    await db.execute(sql);
+    await batch.commit(noResult: true);
+  }
+
+  // Create or insert data into the table
+  static Future<void> createOrInsertData(
+      String tableName, Map<String, String> data) async {
+    final Database db = await initializeDB();
+
+    // Check if the table already exists
+    bool tableExists = await checkTableExists(db, tableName);
+
+    // If the table doesn't exist, create it
+    if (!tableExists) {
+      await createTable(db, tableName);
+    }
+
+    // Insert data into the table
+    await insertData(db, tableName, data);
+  }
+
+  // Retrieve all data from the specified table
+  static Future<List<Map<String, dynamic>>> getAllData(String tableName) async {
+    final Database db = await initializeDB();
+    try {
+      return await db.query('"$tableName"');
+    } catch (e) {
+      throw Exception('Error retrieving data from $tableName: $e');
+    }
   }
 }
