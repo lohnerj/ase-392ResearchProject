@@ -44,18 +44,30 @@ class sqlHelper {
     ''');
   }
 
+  // Check if a date already exists in the table
+  static Future<bool> dateExists(
+      Database db, String tableName, String date) async {
+    var result = await db.rawQuery(
+      'SELECT date FROM "$tableName" WHERE date = ?',
+      [date],
+    );
+    return result.isNotEmpty;
+  }
+
   // Insert data into the table
   static Future<void> insertData(
       Database db, String tableName, Map<String, String> data) async {
     Batch batch = db.batch();
 
-    data.forEach((date, price) {
-      batch.insert(
-        tableName,
-        {'date': date, 'price': price},
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    });
+    for (var entry in data.entries) {
+      bool exists = await dateExists(db, tableName, entry.key);
+      if (!exists) {
+        batch.rawInsert(
+          'INSERT INTO "$tableName" (date, price) VALUES (?, ?)',
+          [entry.key, entry.value],
+        );
+      }
+    }
 
     await batch.commit(noResult: true);
   }
@@ -75,5 +87,15 @@ class sqlHelper {
 
     // Insert data into the table
     await insertData(db, tableName, data);
+  }
+
+  // Retrieve all data from the specified table
+  static Future<List<Map<String, dynamic>>> getAllData(String tableName) async {
+    final Database db = await initializeDB();
+    try {
+      return await db.query('"$tableName"');
+    } catch (e) {
+      throw Exception('Error retrieving data from $tableName: $e');
+    }
   }
 }
