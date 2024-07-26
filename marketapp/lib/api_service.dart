@@ -53,6 +53,37 @@ Future<double> fetchPriceData(int itemId) async {
   }
 }
 
+Future<Map<String, String>> fetchLargeData(int itemId) async {
+  try {
+    final response = await http
+        .get(Uri.parse('https://nwmarketprices.com/0/15?cn_id=$itemId'));
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(response.body);
+
+      // Extract the list of price graph data
+      var priceGraphData = data['price_graph_data'];
+
+      // Initialize an empty map to store the date and avg prices
+      Map<String, String> avgPrices = {};
+
+      // Loop through the price graph data array
+      for (var graphData in priceGraphData) {
+        // Extract the avg_price and date_only and add it to the map
+        avgPrices[graphData['date_only'].toString()] =
+            graphData['avg_price'].toString();
+      }
+
+      return avgPrices;
+    } else {
+      throw Exception(
+          'Failed to fetch graph data: Server responded with ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Failed to fetch graph data: $e'); // Log the error
+    throw Exception('Error fetching graph data: $e');
+  }
+}
+
 //(15th, so index:14) The last entry in price_graph_data: qty(nullcheck), date_only, lowest_price, highest_buy_order, avg_price,
 Future<List<String>> fetchLatestInfo(int itemId) async {
   try {

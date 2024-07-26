@@ -84,7 +84,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MachineLearningPage(),
+                                builder: (context) => MachineLearningPage(
+                                    itemId: itemId, pageKey: key),
                               ));
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
