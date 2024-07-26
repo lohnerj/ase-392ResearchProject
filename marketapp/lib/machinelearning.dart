@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:marketapp/api_service.dart';
 import 'package:marketapp/sqlHelper.dart';
@@ -11,8 +9,7 @@ class MachineLearningPage extends StatefulWidget {
   final int itemId;
   final String pageKey;
 
-  const MachineLearningPage(
-      {super.key, required this.itemId, required this.pageKey});
+  MachineLearningPage({required this.itemId, required this.pageKey});
 
   @override
   _MachineLearningPageState createState() => _MachineLearningPageState();
@@ -24,6 +21,8 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
   String loadTime = '';
   String dataAmount = '';
   String predictionResult = '';
+  double currentPrice = 0.0;
+  double priceDifference = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +56,20 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
                 fontSize: 16,
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Current Price: $currentPrice',
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Price Difference: ${priceDifference.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 16,
+              ),
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -79,6 +92,7 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
                                 Text('Data fetched and inserted successfully')),
                       );
                     } catch (e) {
+                      print(e);
                       // Show an error message
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -95,6 +109,13 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
                       dataAmount = allData.length.toString();
                     });
 
+                    // Fetch current price
+                    double fetchedCurrentPrice =
+                        await fetchPriceData(widget.itemId);
+                    setState(() {
+                      currentPrice = fetchedCurrentPrice;
+                    });
+
                     // Measure execution time for prediction
                     final stopwatch = Stopwatch()..start();
                     double nextPrice = predictNextPrice(allData);
@@ -106,7 +127,10 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
                       loadTime =
                           'Execution time: ${stopwatch.elapsedMilliseconds} ms';
                       algorithmType = 'Linear Regression';
+                      priceDifference = nextPrice - currentPrice;
                     });
+
+                    print(predictionResult);
                   },
                   child: const Text('Get All Data'),
                 ),
