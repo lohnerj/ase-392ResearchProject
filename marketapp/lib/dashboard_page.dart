@@ -76,11 +76,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     IconButton(
                       icon: const Icon(
-                          Icons.question_mark), // Icon for fetching latest info
-                      onPressed: () async {},
-                    ),
-                    IconButton(
-                      icon: const Icon(
                           Icons.lightbulb), // Icon for machine learning
                       onPressed: () async {
                         try {
@@ -103,13 +98,6 @@ class _DashboardPageState extends State<DashboardPage> {
             },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Placeholder function for FloatingActionButton
-        }, // Icon for the button
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add), // Background color for the button
       ),
     );
   }
