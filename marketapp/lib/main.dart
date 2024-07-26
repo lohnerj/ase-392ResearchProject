@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:marketapp/sqlHelper.dart';
 import 'search_page.dart';
 import 'hive_service.dart';
 
 Future<void> main() async {
+  // Ensures that Flutter binding is initialized before any other bindings
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive service and open the items box
   HiveService hiveService = HiveService();
   await hiveService.initFlutter();
   await hiveService.openBox('itemsBox');
 
-  runApp(MyApp());
+  // Run the Flutter application
+  runApp(const MyApp());
 }
 
+// Main application widget
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -20,10 +24,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Market App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        primarySwatch: Colors.blue, // Set the primary color of the app
+        visualDensity: VisualDensity
+            .adaptivePlatformDensity, // Adaptive density for different platforms
       ),
-      home: SearchPage(),
+      home: const SearchPage(), // Set the home screen of the app
     );
   }
 }

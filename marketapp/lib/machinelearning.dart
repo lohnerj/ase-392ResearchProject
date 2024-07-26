@@ -1,18 +1,24 @@
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:marketapp/api_service.dart';
 import 'package:marketapp/sqlHelper.dart';
 import 'package:ml_algo/ml_algo.dart';
 import 'package:ml_dataframe/ml_dataframe.dart';
 
+// Stateful widget for the Machine Learning page
 class MachineLearningPage extends StatefulWidget {
   final int itemId;
   final String pageKey;
-  MachineLearningPage({required this.itemId, required this.pageKey});
+
+  const MachineLearningPage(
+      {super.key, required this.itemId, required this.pageKey});
 
   @override
   _MachineLearningPageState createState() => _MachineLearningPageState();
 }
 
+// State class for MachineLearningPage
 class _MachineLearningPageState extends State<MachineLearningPage> {
   String algorithmType = '';
   String loadTime = '';
@@ -23,7 +29,7 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Machine Learning Page: ${widget.pageKey}'),
+        title: Text('Machine Learning Page: ${widget.pageKey}'), // AppBar title
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -33,21 +39,21 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
             const SizedBox(height: 16),
             Text(
               'Algorithm Type: $algorithmType',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Load Time: $loadTime',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Amount of Data: $dataAmount',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
               ),
             ),
@@ -66,15 +72,14 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
                       await sqlHelper.createOrInsertData(
                           widget.pageKey, dataValues);
 
-                      // Optionally, you can show a success message
+                      // Show a success message
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                             content:
                                 Text('Data fetched and inserted successfully')),
                       );
                     } catch (e) {
-                      print(e);
-                      // Optionally, you can show an error message
+                      // Show an error message
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                             content:
@@ -82,6 +87,7 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
                       );
                     }
 
+                    // Retrieve all data from the database
                     List<Map<String, dynamic>> allData =
                         await sqlHelper.getAllData(widget.pageKey);
 
@@ -89,6 +95,7 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
                       dataAmount = allData.length.toString();
                     });
 
+                    // Measure execution time for prediction
                     final stopwatch = Stopwatch()..start();
                     double nextPrice = predictNextPrice(allData);
                     stopwatch.stop();
@@ -100,8 +107,6 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
                           'Execution time: ${stopwatch.elapsedMilliseconds} ms';
                       algorithmType = 'Linear Regression';
                     });
-
-                    print(predictionResult);
                   },
                   child: const Text('Get All Data'),
                 ),
@@ -110,7 +115,7 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
             const SizedBox(height: 16),
             Text(
               predictionResult,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.blueAccent,
               ),
@@ -121,11 +126,13 @@ class _MachineLearningPageState extends State<MachineLearningPage> {
     );
   }
 
+  // Convert date string to a numeric value
   int _dateToNumeric(String date) {
     DateTime parsedDate = DateTime.parse(date);
     return parsedDate.difference(DateTime(2024, 7, 12)).inDays;
   }
 
+  // Predict the next price using linear regression
   double predictNextPrice(List<Map<String, dynamic>> allData) {
     List<int> dates =
         allData.map((entry) => _dateToNumeric(entry['date'])).toList();

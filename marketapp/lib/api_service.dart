@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+// Function to perform an HTTP GET request and return the JSON response
 Future<Map<String, dynamic>> httpGetJson(String url) async {
   try {
     final response = await http.get(Uri.parse(url));
@@ -15,31 +16,31 @@ Future<Map<String, dynamic>> httpGetJson(String url) async {
   }
 }
 
+// Function to fetch a list of servers
 Future<String> fetchServers() async {
-  //15 is valhalla
   final response =
       await http.get(Uri.parse('https://nwmarketprices.com/api/servers/'));
   return response.body;
 }
 
+// Function to fetch the latest prices
 Future<String> fetchLatestPrices() async {
   try {
     final responseData =
         await httpGetJson('https://nwmarketprices.com/api/latest-prices/15/');
-    return json.encode(
-        responseData); // Assuming you want to convert the response to a JSON string
+    return json.encode(responseData); // Convert the response to a JSON string
   } catch (e) {
     throw Exception('Failed to fetch latest prices: $e');
   }
 }
 
+// Function to fetch price data for a specific item ID
 Future<double> fetchPriceData(int itemId) async {
   try {
     final response = await http
         .get(Uri.parse('https://nwmarketprices.com/0/15?cn_id=$itemId'));
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-
       return data['recent_lowest_price']?.toDouble() ??
           0; // Ensure it's a double
     } else {
@@ -47,28 +48,22 @@ Future<double> fetchPriceData(int itemId) async {
           'Failed to fetch price: Server responded with ${response.statusCode}');
     }
   } catch (e) {
-    // ignore: avoid_print
-    print('Failed to fetch price data: $e'); // Log the error
+    // Log the error
     throw Exception('Error fetching price: $e');
   }
 }
 
+// Function to fetch large data for a specific item ID
 Future<Map<String, String>> fetchLargeData(int itemId) async {
   try {
     final response = await http
         .get(Uri.parse('https://nwmarketprices.com/0/15?cn_id=$itemId'));
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-
-      // Extract the list of price graph data
       var priceGraphData = data['price_graph_data'];
-
-      // Initialize an empty map to store the date and avg prices
       Map<String, String> avgPrices = {};
 
-      // Loop through the price graph data array
       for (var graphData in priceGraphData) {
-        // Extract the avg_price and date_only and add it to the map
         avgPrices[graphData['date_only'].toString()] =
             graphData['avg_price'].toString();
       }
@@ -79,20 +74,18 @@ Future<Map<String, String>> fetchLargeData(int itemId) async {
           'Failed to fetch graph data: Server responded with ${response.statusCode}');
     }
   } catch (e) {
-    print('Failed to fetch graph data: $e'); // Log the error
+    // Log the error
     throw Exception('Error fetching graph data: $e');
   }
 }
 
-//(15th, so index:14) The last entry in price_graph_data: qty(nullcheck), date_only, lowest_price, highest_buy_order, avg_price,
+// Function to fetch the latest info for a specific item ID
 Future<List<String>> fetchLatestInfo(int itemId) async {
   try {
     final response = await http
         .get(Uri.parse('https://nwmarketprices.com/0/15?cn_id=$itemId'));
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-
-      // Assume the recent values are the latest ones in the `price_graph_data` list
       var latestGraphData = data['price_graph_data'].last;
 
       List<String> info = [
@@ -109,20 +102,18 @@ Future<List<String>> fetchLatestInfo(int itemId) async {
           'Failed to fetch graph data: Server responded with ${response.statusCode}');
     }
   } catch (e) {
-    // ignore: avoid_print
-    print('Failed to fetch graph data: $e'); // Log the error
+    // Log the error
     throw Exception('Error fetching graph data: $e');
   }
 }
 
+// Function to fetch graph data for a specific item ID
 Future<List<double>> fetchGraphData(int itemId) async {
   try {
     final response = await http
         .get(Uri.parse('https://nwmarketprices.com/0/15?cn_id=$itemId'));
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-
-      // Assume the recent values are the latest ones in the `price_graph_data` list
       var latestGraphData = data['price_graph_data'].last;
 
       List<double> prices = [
@@ -142,12 +133,12 @@ Future<List<double>> fetchGraphData(int itemId) async {
           'Failed to fetch graph data: Server responded with ${response.statusCode}');
     }
   } catch (e) {
-    // ignore: avoid_print
-    print('Failed to fetch graph data: $e'); // Log the error
+    // Log the error
     throw Exception('Error fetching graph data: $e');
   }
 }
 
+// Function to fetch names and their IDs
 Future<Map<String, dynamic>> fetchNames() async {
   final response = await http
       .get(Uri.parse('https://nwmarketprices.com/api/confirmed_names/'));
