@@ -2,16 +2,18 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+// Stateless widget to display a price graph
 class GraphPage extends StatelessWidget {
   final List<double> prices;
 
-  GraphPage({required this.prices});
+  // Constructor to initialize prices
+  const GraphPage({super.key, required this.prices});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Price Graph"),
+        title: const Text("Price Graph"), // Title of the AppBar
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -30,41 +32,43 @@ class GraphPage extends StatelessWidget {
                     reservedSize: 50,
                     interval: 1,
                     getTitlesWidget: (value, meta) {
+                      // Display labels for the bottom axis
                       switch (value.toInt()) {
                         case 0:
-                          return Text('Recent',
+                          return const Text('Recent',
                               style:
                                   TextStyle(fontSize: 10, color: Colors.red));
                         case 1:
-                          return Text('Lowest',
+                          return const Text('Lowest',
                               style:
                                   TextStyle(fontSize: 10, color: Colors.red));
                         case 2:
-                          return Text('Highest Buy Order',
+                          return const Text('Highest Buy Order',
                               style:
                                   TextStyle(fontSize: 10, color: Colors.red));
                         case 3:
-                          return Text('Average',
+                          return const Text('Average',
                               style:
                                   TextStyle(fontSize: 10, color: Colors.red));
                         default:
-                          return Text('');
+                          return const Text('');
                       }
                     },
                   ),
                 ),
-                topTitles: AxisTitles(
-                    sideTitles:
-                        SideTitles(showTitles: false)), // Hide top titles
-                rightTitles: AxisTitles(
-                    sideTitles:
-                        SideTitles(showTitles: false)), // Hide right titles
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false), // Hide top titles
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles:
+                      SideTitles(showTitles: false), // Hide right titles
+                ),
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
                     interval: prices.reduce(max) / 5, // Increase intervals
                     getTitlesWidget: (value, meta) => Text('${value.toInt()}',
-                        style: TextStyle(color: Colors.red)),
+                        style: const TextStyle(color: Colors.red)),
                     reservedSize: 40, // Reserve space for labels
                   ),
                 ),
@@ -73,17 +77,20 @@ class GraphPage extends StatelessWidget {
                   .asMap()
                   .map((index, value) => MapEntry(
                       index,
-                      BarChartGroupData(x: index, barRods: [
-                        BarChartRodData(
-                          toY: value,
-                          color: Colors.red,
-                          width: 15, // Set the bar width
-                        ),
-                      ])))
+                      BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: value,
+                            color: Colors.red,
+                            width: 15, // Set the bar width
+                          ),
+                        ],
+                      )))
                   .values
                   .toList(),
-              gridData: FlGridData(show: true),
-              borderData: FlBorderData(show: true),
+              gridData: const FlGridData(show: true), // Display grid lines
+              borderData: FlBorderData(show: true), // Display border
             ),
           ),
         ),
